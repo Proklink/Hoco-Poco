@@ -60,7 +60,7 @@ while True:
 
     BuildManager.building(player, players, dice_manager.subscribe)
 
-    
+
     if len(player.cards[CardType.WIN.value]) == 4:
         print('\nИгрок {} выиграл!'.format(player.name))
         break
