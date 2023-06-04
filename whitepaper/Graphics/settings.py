@@ -19,6 +19,11 @@ CARD_MINI_HEIGHT = CARD_HEIGHT / 3
 TAIL_WIDTH = 14
 TAIL_HEIGHT = 8
 
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
+
+TEXT_COLOR = (69, 69, 69)
+
 class GUICardSettings:
     def __init__(self, image, width, height):
         self.image = image
@@ -29,8 +34,8 @@ class Settings():
     def __init__(self):
         """Initialize the game's settings."""
         # Screen settings start
-        self.scr_width = 1920
-        self.scr_height = 1080
+        self.scr_width = SCREEN_WIDTH
+        self.scr_height = SCREEN_HEIGHT
         self.scr_caption = "Hoco Poco"
         self.scr_background_image_path = 'images/background.jpg'
         self.scr_image = pygame.image.load(self.scr_background_image_path)

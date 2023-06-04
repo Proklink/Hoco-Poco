@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Graphics.GInfo import Notification
+from Graphics.GInfo import NotificationExpired
 from cards import CardType
 import cards as crds
 
@@ -23,8 +23,8 @@ class ActivePlayerSetter(Substage):
         self.active_player += 1
         self.active_player %= self.number_of_players
 
-        return [ (Notification, ['Ход игрока {}'.format(self.players[self.active_player].name), 2, [], "update_continuation"])]
-        # return []
+        return [ (NotificationExpired, ['Ход игрока {}'.format(self.players[self.active_player].name), 2, [], "update_continuation"])]
+    
     def is_ended(self):
         return True
     

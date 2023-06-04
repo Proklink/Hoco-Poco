@@ -10,7 +10,7 @@ class GUIPlayer:
         self.screen = screen
         self.settings = settings
 
-        self.text_color = (0, 0, 0)
+        TEXT_COLOR = (0, 0, 0)
         self.font = pygame.font.SysFont(None, 30)
 
         self.coin_image = settings.coin_image.copy()
@@ -18,7 +18,7 @@ class GUIPlayer:
         self.coin_rect = self.coin_image.get_rect()
 
         self.money_str = '10'
-        self.money_image = self.font.render(self.money_str, True, self.text_color, (255, 255, 255))
+        self.money_image = self.font.render(self.money_str, True, TEXT_COLOR, (255, 255, 255))
         # self.money_image = smoothscale(self.money_image, (50, 50))
         self.money_rect = self.money_image.get_rect()
 
@@ -28,7 +28,7 @@ class GUIPlayer:
         self.money_surface.blit(self.coin_image, (0, 0))
         self.money_surface.blit(self.money_image, (self.coin_rect.right + 5, 0))
 
-        self.player_name_image = self.font.render('Player 1', True, self.text_color, (255, 255, 255))
+        self.player_name_image = self.font.render('Player 1', True, TEXT_COLOR, (255, 255, 255))
         self.player_image =  settings.car_image
         self.player_image = smoothscale(self.player_image, (100, 100))
         height = self.player_image.get_rect().height + self.player_name_image.get_rect().height
