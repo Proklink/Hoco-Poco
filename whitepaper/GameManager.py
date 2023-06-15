@@ -24,8 +24,8 @@ class Manager():
     
     def update(self):
         self.main_pipline.update()
-        new_graphic_objects = self.main_pipline.run()
-        self.artist.update(new_graphic_objects)
+        self.main_pipline.run()
+        self.artist.update()
 
     def draw(self):
         self.artist.draw()

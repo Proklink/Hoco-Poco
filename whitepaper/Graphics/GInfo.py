@@ -99,7 +99,7 @@ class Button(GObject):
         self.text = text
 
         self.image = Surface((CARD_WIDTH / 2, CARD_HEIGHT / 2))
-        self.image.fill((0 ,255, 0))
+        # self.image.fill((0 ,255, 0))
         self.rect = self.image.get_rect()
 
         self.text_image = self.FONT.render(text, True, TEXT_COLOR, (0,0,0))
@@ -112,14 +112,14 @@ class Button(GObject):
         screen.screen.blit(self.image, self.rect)
 
     def click(self):
-        print('{self.text} button clicked'.format(self.text))
+        print('{} button clicked'.format(self.text))
 
     def clickable(self):
         return True
 
 
-def get_dialog():
-    notification_surface = Notification(['Хотите?', [], ''])
+def get_dialog(text):
+    notification_surface = Notification([text, [], ''])
     button_yes = Button('Yes')
     button_no = Button('No')
     button_yes.rect.left = notification_surface.rect.left
@@ -129,6 +129,33 @@ def get_dialog():
 
     return [notification_surface, button_yes, button_no]
 
+def get_railway_check_dialog():
+    notification_surface = Notification(['Сколько кубиков бросаете?', [], ''])
+    button_yes = Button('2')
+    button_no = Button('1')
+    button_yes.rect.left = notification_surface.rect.left
+    button_yes.rect.top = notification_surface.rect.bottom
+    button_no.rect.right = notification_surface.rect.right
+    button_no.rect.top = notification_surface.rect.bottom
+
+    button_yes.click = lambda: dispatch_event("dialog_answer", 'dice_number', 2)
+    button_no.click = lambda: dispatch_event("dialog_answer", 'dice_number', 1)
+
+    return [notification_surface, button_yes, button_no]
+
+def get_radiotower_check_dialog():
+    notification_surface = Notification(['Перебрасываете?', [], ''])
+    button_yes = Button('Да')
+    button_no = Button('Нет')
+    button_yes.rect.left = notification_surface.rect.left
+    button_yes.rect.top = notification_surface.rect.bottom
+    button_no.rect.right = notification_surface.rect.right
+    button_no.rect.top = notification_surface.rect.bottom
+
+    button_yes.click = lambda: dispatch_event("dialog_answer", 'dice_number', 2)
+    button_no.click = lambda: dispatch_event("dialog_answer", 'dice_number', 1)
+
+    return [notification_surface, button_yes, button_no]
 
     
 

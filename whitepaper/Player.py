@@ -1,6 +1,6 @@
 from cards import CardType
 import cards as card_file
-from tabulate import tabulate
+# from tabulate import tabulate
 
 class Player:
     __player_numbers = 0
@@ -58,7 +58,7 @@ def print_cards_market(active_player: Player):
         purples.append("\n{} {} {}\n Dice {} Cost {}".format( CardType.PURPLE.name, card_id, card.name, card.dice, card.cost))
     data.append(purples)
 
-    print(tabulate(data))
+    # print(tabulate(data))
 
 def print_player_cards_by_color(player, color: CardType, gap: str):
     mass = [color.name + ": "]
@@ -87,4 +87,4 @@ def print_cards_player(player: Player):
         if len(cardss) > 1:
             data.append(cardss)
 
-    print(tabulate(data))
+    # print(tabulate(data))
