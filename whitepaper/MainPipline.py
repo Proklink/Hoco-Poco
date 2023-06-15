@@ -10,22 +10,21 @@ random.seed(int(time.time()))
 class MainPipline():
     def __init__(self, number_of_players = 2):
         self.number_of_players = number_of_players
-        self.players = [Player("1"), Player("2")]
-        self.players[0].add_card(0, CardType.WIN, self.subscribe)
-        self.players[0].add_card(3, CardType.WIN, self.subscribe)
-        self.stages = [ActivePlayerSetter(self.players), DiceThrowing()]
-        self.current_stage = 0
-
-        self.access_to_continue = True
-
-        self.dice = 0
-        
         self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
+
+        self.players = [Player("1"), Player("2")]
+        self.players[0].add_card(0, CardType.RED, self.subscribe)
+        # self.players[0].add_card(3, CardType.WIN, self.subscribe)
+        self.current_stage = 0
+        self.access_to_continue = True
+        self.dice = 0
 
         set_handler("update_continuation", self.update_continuation)
         set_handler("dice", self.set_dice)
         set_handler("new_grafics", self.not_continue)
         set_handler("new_dialog", self.not_continue)
+
+        self.stages = [ActivePlayerSetter(self.players), DiceThrowing(), RedCards(self.players, self.listeners)]
         
 
     def subscribe(self, dice_list, card, player: int, color: CardType):

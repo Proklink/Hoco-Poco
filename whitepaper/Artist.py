@@ -15,6 +15,22 @@ class Artist():
         set_handler("new_dialog", self.new_dialog)
         set_handler("click", self.click)
         set_handler("dialog_answer", self.dialog_answer)
+        set_handler("active_player", self.new_active_player)
+        set_handler('dice', self.new_dice)
+
+        self.active_player_static_notification = get_active_player_gobj('')
+        self.current_dice_static_notification = get_current_dice_gobj('')
+
+    def new_dice(self, dice):
+        dice_str = ''
+        if len(dice) == 1:
+            dice_str = str(dice[0])
+        else:
+            dice_str = '{} - {}'.format(dice[1], dice[2])
+        self.current_dice_static_notification = get_current_dice_gobj(dice_str)
+
+    def new_active_player(self, player):
+        self.active_player_static_notification = get_active_player_gobj('Ход игрока {}'.format(player.name))
 
     def click(self, m_x, m_y):
         for button in self.dialog_objects:
@@ -53,6 +69,8 @@ class Artist():
     def draw(self):
         self.window.screen.fill(self.clear_color)
         self.window.screen.blit(self.window.image, self.window.rect)
+        self.active_player_static_notification.blitme(self.window)
+        self.current_dice_static_notification.blitme(self.window)
 
         for gobject in self.graphic_objects:
             gobject.blitme(self.window)

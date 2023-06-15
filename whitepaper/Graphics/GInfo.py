@@ -158,4 +158,14 @@ def get_radiotower_check_dialog():
     return [notification_surface, button_yes, button_no]
 
     
+def get_active_player_gobj(text):
+    notif = Notification([text, [], ""])
+    notif.rect.left = 0
+    notif.rect.top = 0
+    return notif
 
+def get_current_dice_gobj(text):
+    notif = Notification([text, [], ""])
+    notif.rect.left = CARD_WIDTH * Notification.WIDTH + SPACE_BEETWEN_CARDS * (Notification.WIDTH - 1)
+    notif.rect.top = 0
+    return notif

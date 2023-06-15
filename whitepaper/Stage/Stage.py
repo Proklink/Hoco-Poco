@@ -41,3 +41,27 @@ class DiceThrowing(Stage):
 
     def is_ended(self):
         return self.ended
+    
+
+class RedCards(Stage):
+    def __init__(self, players, listeners):
+        self.ended = False
+        set_handler("red_end", self.red_end)
+        self.stages = [prepare_and_check_reds(listeners), process_player_red(players)]
+        self.current = 0
+
+    def red_end(self):
+        self.ended = True
+
+    def is_ended(self):
+        return self.ended
+
+    def run(self):
+        self.stages[self.current].run()
+
+        if self.current == 0:
+            self.current = 1
+
+    def reset(self):
+        self.ended = False
+        self.current = 0
