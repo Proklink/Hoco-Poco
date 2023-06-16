@@ -13,8 +13,8 @@ class MainPipline():
         self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
 
         self.players = [Player("1"), Player("2")]
-        self.players[0].add_card(0, CardType.RED, self.subscribe)
-        # self.players[0].add_card(3, CardType.WIN, self.subscribe)
+        self.players[0].add_card(0, CardType.GREEN, self.subscribe)
+        self.players[1].add_card(1, CardType.GREEN, self.subscribe)
         self.current_stage = 0
         self.access_to_continue = True
         self.dice = 0
@@ -24,7 +24,11 @@ class MainPipline():
         set_handler("new_grafics", self.not_continue)
         set_handler("new_dialog", self.not_continue)
 
-        self.stages = [ActivePlayerSetter(self.players), DiceThrowing(), RedCards(self.players, self.listeners)]
+        self.stages = [ActivePlayerSetter(self.players),
+                       DiceThrowing(),
+                       RedCards(self.players, self.listeners),
+                       BlueCards(self.players, self.listeners),
+                       GreenCards(self.players, self.listeners)]
         
 
     def subscribe(self, dice_list, card, player: int, color: CardType):
