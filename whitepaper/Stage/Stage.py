@@ -116,3 +116,33 @@ class GreenCards(Stage):
     def reset(self):
         self.ended = False
         self.current = 0
+
+class PurpleCards(Stage):
+    def __init__(self, players, listeners):
+        self.ended = False
+        set_handler("purple_end", self.blue_end)
+        set_handler("stages_purple", self.stages_purple)
+        self.preparing = prepare_and_check_purple(listeners, players)
+        self.stages = [self.preparing]
+        self.current = 0
+
+    def blue_end(self):
+        self.ended = True
+
+    def is_ended(self):
+        return self.ended
+    
+    def stages_purple(self, stages):
+        self.stages = [self.preparing]
+        for stage in stages:
+            self.stages.append(stage)
+
+    def run(self):
+        self.stages[self.current].run()
+
+        self.current += 1
+        self.current %= len(self.stages)
+
+    def reset(self):
+        self.ended = False
+        self.current = 0

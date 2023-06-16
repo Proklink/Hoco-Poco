@@ -13,8 +13,8 @@ class MainPipline():
         self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
 
         self.players = [Player("1"), Player("2")]
-        self.players[0].add_card(0, CardType.GREEN, self.subscribe)
-        self.players[1].add_card(1, CardType.GREEN, self.subscribe)
+        self.players[0].add_card(0, CardType.PURPLE, self.subscribe)
+        self.players[1].add_card(0, CardType.PURPLE, self.subscribe)
         self.current_stage = 0
         self.access_to_continue = True
         self.dice = 0
@@ -28,7 +28,8 @@ class MainPipline():
                        DiceThrowing(),
                        RedCards(self.players, self.listeners),
                        BlueCards(self.players, self.listeners),
-                       GreenCards(self.players, self.listeners)]
+                       GreenCards(self.players, self.listeners),
+                       PurpleCards(self.players, self.listeners)]
         
 
     def subscribe(self, dice_list, card, player: int, color: CardType):

@@ -67,7 +67,7 @@ class generate_dice(Substage):
         self.dice_number = new_dice_number
 
     def run(self):
-        first = random.randint(1, 6)
+        first = 6#random.randint(1, 6)
         second = random.randint(1, 6)
         if self.dice_number == 2:
             dispatch_event('new_grafics', [ (NotificationExpired, ['Игрок выбросил кубики ({} : {})'.format(first, second), 1, [], "update_continuation"]) ])
@@ -287,3 +287,70 @@ class greens(Substage):
         dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
         self.players[self.active_player.id].money += need_to_pay
         dispatch_event('green_end')
+
+
+class prepare_and_check_purple(Substage):
+    def __init__(self, listeners, players):
+        self.listeners = listeners
+        self.players = players
+        set_handler('dice', self.new_dice)
+        set_handler("active_player", self.new_active_player)
+
+    def new_active_player(self, active_player):
+        self.active_player = active_player
+
+    def new_dice(self, dice):
+        self.dice = dice[0]
+
+    def run(self):
+        purples = self.listeners[CardType.PURPLE.value].get(self.dice)
+        if not purples:
+            dispatch_event('purple_end')
+            return
+        
+        purple_cards = purples.get(self.active_player.id)
+        if not purple_cards:
+            dispatch_event('purple_end')
+            return
+        
+        stages = []
+
+        for card_id, _ in purple_cards.items():
+            if card_id == 0: #взять деньги у всех
+                need_to_pay = crds.purple_cards[card_id].profit
+
+                def substage(arg_list):
+                    need_to_pay = arg_list[0]
+                    players = arg_list[1]
+                    active_player = arg_list[2]
+
+                    for player in players:
+                        if player.id == active_player.id:
+                            continue
+                        if player.money == 0:
+                            continue
+                        elif player.money < need_to_pay:
+                            res_str = "Игрок {} платит игроку {} {} монет за карту {}".format(player.name, active_player.name, player.money, crds.purple_cards[card_id].name)
+                            players[active_player.id].money += player.money
+                            player.money = 0
+                            print(res_str)
+                            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
+                        else:
+                            res_str = "Игрок {} платит игроку {} {} монет за карту {}".format(player.name, active_player.name, need_to_pay, crds.purple_cards[card_id].name)
+                            players[active_player.id].money += need_to_pay
+                            player.money -= need_to_pay
+                            print(res_str)
+                            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
+                
+                stages.append(substage_wrapper((substage, [need_to_pay, self.players, self.active_player])))
+            
+            elif card_id == 1:#обмен картами
+                pass
+            else:#взять у одного игрока 5 монет
+                pass
+
+        if stages == []:
+            dispatch_event('purple_end')
+        else:
+            stages.append(substage_wrapper((lambda l: dispatch_event('purple_end'), [])))
+            dispatch_event('stages_purple', stages)
