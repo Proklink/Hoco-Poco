@@ -173,3 +173,32 @@ class PurpleCards(Stage):
     def reset(self):
         self.ended = False
         self.current = 0
+
+class ShopStage(Stage):
+    def __init__(self, players, listeners):
+        self.ended = False
+        set_handler("shop_end", self.shop_end)
+        self.stages = [shop(listeners, players)]
+        self.current = 0
+
+    def shop_end(self):
+        self.ended = True
+
+    def is_ended(self):
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            self.current = 0
+            return True
+
+    def run(self):
+        dispatch_event('shop_in_game')
+        self.stages[self.current].run()
+
+        # self.current += 1
+        # self.current %= len(self.stages)
+
+    def reset(self):
+        self.ended = False
+        self.current = 0

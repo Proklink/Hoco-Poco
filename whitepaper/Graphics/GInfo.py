@@ -171,17 +171,6 @@ def get_radiotower_check_dialog():
 
     return [notification_surface, button_yes, button_no]
 
-# def get_graphic_info_card(color, card_id):
-#     notification_surface = Notification(['Выбрана карта {}'.format(cards_by_colors[color.value][card_id]), [], ''])
-#     button_cancel = Button('Отмена')
-#     button_apply = Button('ОК')
-#     button_cancel.rect.right = notification_surface.rect.right
-#     button_cancel.rect.top = notification_surface.rect.bottom
-#     button_apply.rect.left = notification_surface.rect.left
-#     button_apply.rect.top = notification_surface.rect.bottom
-#     button_cancel.click = lambda: dispatch_event("dialog_answer", 'cancel_telecenter', ())
-#     button_apply.click = lambda: dispatch_event("dialog_answer", 'apply_telecenter', ())
-#     return [notification_surface, button_cancel]
 
 def get_graphic_info_player_self():
     notification_surface = Notification(['Нажмите на игрока, у которого хотите взять 5 монет или отмену', [], ''])
@@ -221,3 +210,34 @@ def get_current_dice_gobj(text):
     notif.rect.left = CARD_WIDTH * Notification.WIDTH + SPACE_BEETWEN_CARDS * (Notification.WIDTH - 1)
     notif.rect.top = 0
     return notif
+
+def get_shop_button():
+    button = Button('Магазин')
+    button.rect.right = SCREEN_WIDTH - INDENT
+    button.rect.top = INDENT
+
+    button.click = lambda: dispatch_event("shop")
+    return button
+
+def get_graphic_info_shop():
+    notification_surface = Notification(['Выберите в магазине карту, которую хотите купить или отмену', [], ''])
+    button = Button('Отмена')
+
+    button.rect.right = notification_surface.rect.right
+    button.rect.top = notification_surface.rect.bottom
+
+    button.click = lambda: dispatch_event("dialog_answer", 'cancel_shop', ())
+
+    return [notification_surface, button]
+
+def get_graphic_info_card(color, card_id):
+    notification_surface = Notification(['Выбрана карта {}'.format(cards_by_colors[color.value][card_id].name), [], ''])
+    button_cancel = Button('Отмена')
+    button_apply = Button('ОК')
+    button_cancel.rect.right = notification_surface.rect.right
+    button_cancel.rect.top = notification_surface.rect.bottom
+    button_apply.rect.left = notification_surface.rect.left
+    button_apply.rect.top = notification_surface.rect.bottom
+    button_cancel.click = lambda: dispatch_event("dialog_answer", 'cancel_shop', ())
+    button_apply.click = lambda: dispatch_event("dialog_answer", 'apply_shop', ())
+    return [notification_surface, button_apply, button_cancel]

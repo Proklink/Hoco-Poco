@@ -48,17 +48,20 @@ class CardBoard(GObject):
         self.cards = [{},{},{},{},{}]
 
 
-    def added(self, card_id, color: CardType):
+    def added(self, card_id, color: CardType, number):
         image = cards_by_colors[color.value][card_id].gui_settings.image.copy()
         rect = image.get_rect()
         rect.left = self.coordinates[color][card_id][0]
         rect.top = self.coordinates[color][card_id][1]
         self.cards[color.value][card_id] = (image, rect)
         self.update()
+            
 
-    def deleted(self, card_id, color: CardType):
-        self.cards[color.value][card_id] = ()
-        self.update()
+    def deleted(self, card_id, color: CardType, number):
+        if number == None:
+            self.cards[color.value][card_id] = ()
+            self.update()
+            
 
     def update(self):
         self.board.fill(0xD9D9D9)
@@ -130,11 +133,12 @@ class MiniCardBoard(GObject):
         self.rect.top = self.playres_boards[id][1]
         self.cards = [[], [], [], [], []]
 
-    def added(self, card_id, color: CardType):
+    def added(self, card_id, color: CardType, number):
+        print('mini ', number)
         self.cards[color.value].append(card_id)
         self.update()
 
-    def deleted(self, card_id, color: CardType):
+    def deleted(self, card_id, color: CardType, number):
         del self.cards[color.value][card_id]
         self.update()
 
@@ -151,47 +155,6 @@ class MiniCardBoard(GObject):
     def click(self):
         pass
 
-
-class ActivePlayer(GObject):
-    def __init__(self, player):
-        self.player = player
-        self.pl_changed = False
-        set_handler('player'+str(self.player.id), self.player_changed)
-
-        self.main_card_board = CardBoard(252, 540)
-        self.main_card_board.update(self.player.cards)
-
-    def player_changed(self):
-        self.pl_changed = True
-
-    def update(self):
-        if self.pl_changed:
-            self.main_card_board.update(self.player.cards)
-            self.pl_changed = False
-
-    def blitme(self, screen):
-        screen.screen.blit(self.main_card_board.board, self.main_card_board.rect)
-
-
-class OtherPlayer(GObject):
-    def __init__(self, player):
-        self.player = player
-        self.pl_changed = False
-        set_handler('player'+str(self.player.id), self.player_changed)
-
-        self.main_card_board = MiniCardBoard(15, 26)
-        self.main_card_board.update(self.player.cards)
-
-    def player_changed(self):
-        self.pl_changed = True
-
-    def update(self):
-        if self.pl_changed:
-            self.main_card_board.update(self.player.cards)
-            self.pl_changed = False
-
-    def blitme(self, screen):
-        screen.screen.blit(self.main_card_board.board, self.main_card_board.rect)
 
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
     words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
@@ -258,34 +221,10 @@ class BigCard(GObject):
     def click(self, x, y):
         pass
 
-
-class ActionInfo(GObject):
-    WIDTH = 366
-    HEIGHT = 300
+class Shop:
     def __init__(self):
-        super().__init__()
-        set_handler('action_text', self.set_action_text)
-        self.FONT = font.SysFont(None, 30)
-        self.text = ""
+        self.big_card_board = CardBoard()
 
-        self.image = Surface((self.WIDTH, self.HEIGHT))
-        self.image.fill(pygame.Color('grey'))
-        self.rect = self.image.get_rect()
-        self.rect.left = 1550
-        self.rect.top = 540
-
-        self.text_surface = Surface((self.WIDTH - 2*INDENT, self.HEIGHT - 2*INDENT))
-        self.text_surface.fill(pygame.Color('grey'))
-
-        self.set_action_text(self.text)
-
-        self.image.blit(self.text_surface, (INDENT, INDENT))
-
-    def set_action_text(self, text):
-        self.text = text
-        blit_text(self.text_surface, self.text, (0,0), self.FONT)
-
-
-    def blitme(self, screen):
-        screen.screen.blit(self.image, self.rect)
-        pass
+        for color in CardType:
+            for card_id, card in list(crds.cards_by_colors[color.value].items()):
+                self.big_card_board.added(card_id, color, 6)

@@ -26,9 +26,9 @@ class Player:
         if color.value != CardType.WIN.value:
             card = card_file.cards_by_colors[color.value][card_id]
             subscribe(card.dice, card, self.id, color)
-        self.mini_board.added(card_id, color)
-        self.big_card_board.added(card_id, color)
-        # dispatch_event(self.event_str)
+        self.mini_board.added(card_id, color, colored_cards[card_id])
+        self.big_card_board.added(card_id, color, colored_cards[card_id])
+
 
     def del_card(self, card_id, color: CardType, unsubscribe):
         colored_cards = self.cards[color.value]
@@ -36,12 +36,17 @@ class Player:
         if number != None:
             if colored_cards[card_id] > 1:
                 colored_cards[card_id] -= 1
+
+                self.mini_board.deleted(card_id, color, colored_cards[card_id])
+                self.big_card_board.deleted(card_id, color, colored_cards[card_id])
             else:
                 del colored_cards[card_id]
+                
+                self.mini_board.deleted(card_id, color, None)
+                self.big_card_board.deleted(card_id, color, None)
         if color.value != CardType.WIN.value:
             card = card_file.cards_by_colors[color.value][card_id]
             unsubscribe(card.dice, card, self.id, color)
-        self.mini_board.added(card_id, color)
-        self.big_card_board.added(card_id, color)
-        # dispatch_event(self.event_str)
+        
+
 

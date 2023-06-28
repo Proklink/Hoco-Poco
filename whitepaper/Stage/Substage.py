@@ -56,7 +56,6 @@ class check_railway(Substage):
         self.active_player = active_player
 
     def run(self):
-        print('check_railway')
         if self.active_player.cards[CardType.WIN.value].get(crds.win_cards[0].id) != None:
             dispatch_event('new_dialog', get_railway_check_dialog())
         else:
@@ -72,8 +71,7 @@ class generate_dice(Substage):
         self.dice_number = new_dice_number
 
     def run(self):
-        print('generate_dice')
-        first = 6#random.randint(1, 6)
+        first = random.randint(1, 6)
         second = random.randint(1, 6)
         if self.dice_number == 2:
             dispatch_event('new_grafics', [ (NotificationExpired, ['Игрок выбросил кубики ({} : {})'.format(first, second), 1, [], "update_continuation"]) ])
@@ -318,10 +316,6 @@ class telecenter(Substage):
         self.active_player_id = active_player.id
 
     def apply_telecenter(self, _):
-        if self.last_clicked_player == -1:
-            print('PANIC')
-            pass#cringe
-        
         need_to_pay = crds.purple_cards[2].profit
         other_player = self.players[self.last_clicked_player]
         active_player = self.players[self.active_player_id]
@@ -348,11 +342,6 @@ class telecenter(Substage):
 
     def cancel_telecenter(self, _):
         dispatch_event('purple_continue')
-
-    # def card_clicked(self, color, card_id):
-    #     self.last_card_clicked = (color, card_id)
-    #     # dispatch_event('display_clicked_card', color, card_id)
-    #     dispatch_event('new_dialog', get_graphic_info_card(color, card_id))
 
     def player_clicked(self, player_id):
         if not self.need_to_run:
@@ -452,3 +441,57 @@ class prepare_and_check_purple(Substage):
                 dispatch_event('telecenter')
 
         dispatch_event('purple_continue')
+
+class shop(Substage):
+    def __init__(self, listeners, players):
+        self.listeners = listeners
+        self.players = players
+        self.last_card_clicked = ()
+        self.need_to_run = False
+
+        set_handler("shop_in_game", self.in_game)
+        set_handler("card", self.card_clicked)
+        set_handler("cancel_shop", self.cancel_shop)
+        set_handler("apply_shop", self.apply_shop)
+        set_handler("active_player", self.new_active_player)
+
+    def in_game(self):
+        self.need_to_run = True
+
+    def new_active_player(self, active_player):
+        self.active_player_id = active_player.id
+
+    def apply_shop(self, _):        
+        need_to_pay = crds.cards_by_colors[self.last_card_clicked[0].value][self.last_card_clicked[1]].cost
+        active_player = self.players[self.active_player_id]
+
+        if active_player.money < need_to_pay:
+            res_str = "У вас недостаточно монет для покупки {}".format(crds.cards_by_colors[self.last_card_clicked[0].value][self.last_card_clicked[1]].name)
+            print(res_str)
+            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
+        else:
+            res_str = "Игрок покупает карту {}".format(crds.cards_by_colors[self.last_card_clicked[0].value][self.last_card_clicked[1]].name)
+            
+            active_player.money -= need_to_pay
+            dispatch_event('card_buy', self.active_player_id, self.last_card_clicked[0], self.last_card_clicked[1])
+
+            print(res_str)
+            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
+            dispatch_event('shop_end')
+
+    def cancel_shop(self, _):
+        dispatch_event('shop_end')
+
+    def card_clicked(self, color, card_id):
+        if not self.need_to_run:
+            return
+        self.last_card_clicked = (color, card_id)
+
+        dispatch_event('new_dialog', get_graphic_info_card(color, card_id))
+            
+
+    def run(self):
+        if self.players[self.active_player_id].money == 0 or not self.need_to_run:
+            dispatch_event('shop_end')
+            return
+        dispatch_event('new_dialog', get_graphic_info_shop())

@@ -17,14 +17,13 @@ class Continuation:
     def not_continue(self, new_gobjects):
         self.new_graphics_counter += 1
         self.access_to_continue = False
-        print("self.new_graphics_counter ", self.new_graphics_counter)
 
     def update_continuation(self):
         self.new_graphics_counter -= 1
         if self.new_graphics_counter <= 0:
             self.access_to_continue = True
             self.new_graphics_counter = 0
-        print("self.new_graphics_counter ", self.new_graphics_counter)
+
     @property 
     def get(self): 
         return self.access_to_continue 
@@ -37,53 +36,55 @@ class MainPipline():
         self.players = players
 
         self.players[0].add_card(0, CardType.BLUE, self.subscribe)
-        self.players[0].add_card(1, CardType.BLUE, self.subscribe)
-        self.players[0].add_card(2, CardType.BLUE, self.subscribe)
-        self.players[0].add_card(3, CardType.BLUE, self.subscribe)
-        self.players[0].add_card(4, CardType.BLUE, self.subscribe)
+        # self.players[0].add_card(1, CardType.BLUE, self.subscribe)
+        # self.players[0].add_card(2, CardType.BLUE, self.subscribe)
+        # self.players[0].add_card(3, CardType.BLUE, self.subscribe)
+        # self.players[0].add_card(4, CardType.BLUE, self.subscribe)
 
         self.players[0].add_card(0, CardType.GREEN, self.subscribe)
-        self.players[0].add_card(1, CardType.GREEN, self.subscribe)
+        # self.players[0].add_card(1, CardType.GREEN, self.subscribe)
 
-        self.players[0].add_card(3, CardType.GREEN, self.subscribe)
-        self.players[0].add_card(4, CardType.GREEN, self.subscribe)
+        # self.players[0].add_card(3, CardType.GREEN, self.subscribe)
+        # self.players[0].add_card(4, CardType.GREEN, self.subscribe)
 
-        self.players[0].add_card(1, CardType.RED, self.subscribe)
-        self.players[0].add_card(0, CardType.RED, self.subscribe)
+        # self.players[0].add_card(1, CardType.RED, self.subscribe)
+        # self.players[0].add_card(0, CardType.RED, self.subscribe)
 
-        self.players[0].add_card(0, CardType.PURPLE, self.subscribe)
-        self.players[0].add_card(1, CardType.PURPLE, self.subscribe)
-        self.players[0].add_card(2, CardType.PURPLE, self.subscribe)
+        # self.players[0].add_card(0, CardType.PURPLE, self.subscribe)
+        # self.players[0].add_card(1, CardType.PURPLE, self.subscribe)
+        # self.players[0].add_card(2, CardType.PURPLE, self.subscribe)
 
-        self.players[0].add_card(0, CardType.WIN, self.subscribe)
-        self.players[0].add_card(1, CardType.WIN, self.subscribe)
-        self.players[0].add_card(2, CardType.WIN, self.subscribe)
-        self.players[0].add_card(3, CardType.WIN, self.subscribe)
+        # self.players[0].add_card(0, CardType.WIN, self.subscribe)
+        # self.players[0].add_card(1, CardType.WIN, self.subscribe)
+        # self.players[0].add_card(2, CardType.WIN, self.subscribe)
+        # self.players[0].add_card(3, CardType.WIN, self.subscribe)
 
 
         self.players[1].add_card(0, CardType.BLUE, self.subscribe)
 
-        self.players[1].add_card(2, CardType.BLUE, self.subscribe)
-        self.players[1].add_card(3, CardType.BLUE, self.subscribe)
-        self.players[1].add_card(4, CardType.BLUE, self.subscribe)
+        # self.players[1].add_card(2, CardType.BLUE, self.subscribe)
+        # self.players[1].add_card(3, CardType.BLUE, self.subscribe)
+        # self.players[1].add_card(4, CardType.BLUE, self.subscribe)
 
         self.players[1].add_card(0, CardType.GREEN, self.subscribe)
-        self.players[1].add_card(1, CardType.GREEN, self.subscribe)
-        self.players[1].add_card(2, CardType.GREEN, self.subscribe)
-        self.players[1].add_card(3, CardType.GREEN, self.subscribe)
-        self.players[1].add_card(4, CardType.GREEN, self.subscribe)
+        # self.players[1].add_card(1, CardType.GREEN, self.subscribe)
+        # self.players[1].add_card(2, CardType.GREEN, self.subscribe)
+        # self.players[1].add_card(3, CardType.GREEN, self.subscribe)
+        # self.players[1].add_card(4, CardType.GREEN, self.subscribe)
 
-        self.players[1].add_card(1, CardType.RED, self.subscribe)
-        self.players[1].add_card(0, CardType.RED, self.subscribe)
+        # self.players[1].add_card(1, CardType.RED, self.subscribe)
+        # self.players[1].add_card(0, CardType.RED, self.subscribe)
 
-        self.players[1].add_card(0, CardType.PURPLE, self.subscribe)
-        self.players[1].add_card(1, CardType.PURPLE, self.subscribe)
-        self.players[1].add_card(2, CardType.PURPLE, self.subscribe)
+        # self.players[1].add_card(0, CardType.PURPLE, self.subscribe)
+        # self.players[1].add_card(1, CardType.PURPLE, self.subscribe)
+        # self.players[1].add_card(2, CardType.PURPLE, self.subscribe)
 
-        self.players[1].add_card(0, CardType.WIN, self.subscribe)
-        self.players[1].add_card(1, CardType.WIN, self.subscribe)
-        self.players[1].add_card(2, CardType.WIN, self.subscribe)
-        self.players[1].add_card(3, CardType.WIN, self.subscribe)
+        # self.players[1].add_card(0, CardType.WIN, self.subscribe)
+        # self.players[1].add_card(1, CardType.WIN, self.subscribe)
+        # self.players[1].add_card(2, CardType.WIN, self.subscribe)
+        # self.players[1].add_card(3, CardType.WIN, self.subscribe)
+
+        set_handler('card_buy', self.card_buy)
 
         self.current_stage = 0
         self.continuation = Continuation()
@@ -93,7 +94,11 @@ class MainPipline():
                        RedCards(self.players, self.listeners),
                        BlueCards(self.players, self.listeners),
                        GreenCards(self.players, self.listeners),
-                       PurpleCards(self.players, self.listeners)]
+                       PurpleCards(self.players, self.listeners),
+                       ShopStage(self.players, self.listeners)]
+        
+    def card_buy(self, player_id, color, card_id):
+        self.players[player_id].add_card(card_id, CardType(color), self.subscribe)
         
 
     def subscribe(self, dice_list, card, player: int, color: CardType):

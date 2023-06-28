@@ -52,14 +52,19 @@ class Artist():
         set_handler("dialog_answer", self.dialog_answer)
         set_handler("active_player", self.new_active_player)
         set_handler('dice', self.new_dice)
+        set_handler('shop', self.display_shop)
 
-        self.active_player_static_notification = get_active_player_gobj('')
-        self.current_dice_static_notification = get_current_dice_gobj('')
+        self.shop_button = get_shop_button()
+        self.shop = Shop()
 
         self.graphic_objects.append(players[0].mini_board)
         self.graphic_objects.append(players[1].mini_board)
         self.graphic_objects.append(BigCard())
-        self.graphic_objects.append(ActionInfo())
+        self.graphic_objects.append(self.shop_button)
+
+
+    def display_shop(self):
+        self.graphic_objects[0] = self.shop.big_card_board
 
     def card_clicked(self, color, card_id):
         self.last_clicked_card = (color, card_id)
@@ -80,6 +85,8 @@ class Artist():
             for button in dialogs:
                 if button.rect.collidepoint(m_x, m_y):
                     button.click()
+        if self.shop_button.rect.collidepoint(m_x, m_y):
+            self.shop_button.click()
 
         for i in range(len(self.players)):
             if m_x >= plrs_crds[i]['left']  and \
@@ -95,6 +102,7 @@ class Artist():
            m_y >= bbrd_crds['top']   and \
            m_y <= bbrd_crds['bottom']:
             self.graphic_objects[0].click(m_x, m_y)
+        
     
     def click(self, m_x, m_y):
         print(m_x, " ", m_y)
@@ -108,7 +116,8 @@ class Artist():
         self.dialog_objects = []
 
     def dialog_answer(self, next_event, answer):
-        dispatch_event(next_event, answer)
+        if next_event != '':
+            dispatch_event(next_event, answer)
         
         self.clear_dialogs()
 
