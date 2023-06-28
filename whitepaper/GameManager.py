@@ -4,19 +4,20 @@ from MainPipline import MainPipline
 from Artist import Artist
 from Graphics.screen import Screen
 from Graphics.settings import Settings
-
+from Player import Player
 
 
 class Manager():
     def __init__(self):
+        self.players = [Player("1"), Player("2")]
         self.settings = Settings()
         self.game_events = GameIvents()
-        self.main_pipline = MainPipline()
+        self.main_pipline = MainPipline(self.players)
         self.screen = Screen(self.settings.scr_width,
                              self.settings.scr_height,
                              self.settings.scr_caption,
                              self.settings.scr_image)
-        self.artist = Artist(self.screen, self.settings)
+        self.artist = Artist(self.screen, self.settings, self.players)
 
     
     def events(self):

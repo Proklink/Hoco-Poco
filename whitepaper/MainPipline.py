@@ -1,28 +1,92 @@
 from Stage.Stage import *
 from Stage.Substage import *
-from Player import Player
+
 import random, time
 from InternalEvents import set_handler
 
 random.seed(int(time.time()))
 
-
-class MainPipline():
-    def __init__(self, number_of_players = 2):
-        self.number_of_players = number_of_players
-        self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
-
-        self.players = [Player("1"), Player("2")]
-        self.players[0].add_card(0, CardType.PURPLE, self.subscribe)
-        self.players[1].add_card(0, CardType.PURPLE, self.subscribe)
-        self.current_stage = 0
+class Continuation:
+    def __init__(self):
         self.access_to_continue = True
-        self.dice = 0
-
+        self.new_graphics_counter = 0
         set_handler("update_continuation", self.update_continuation)
-        set_handler("dice", self.set_dice)
         set_handler("new_grafics", self.not_continue)
         set_handler("new_dialog", self.not_continue)
+
+    def not_continue(self, new_gobjects):
+        self.new_graphics_counter += 1
+        self.access_to_continue = False
+        print("self.new_graphics_counter ", self.new_graphics_counter)
+
+    def update_continuation(self):
+        self.new_graphics_counter -= 1
+        if self.new_graphics_counter <= 0:
+            self.access_to_continue = True
+            self.new_graphics_counter = 0
+        print("self.new_graphics_counter ", self.new_graphics_counter)
+    @property 
+    def get(self): 
+        return self.access_to_continue 
+
+class MainPipline():
+    def __init__(self, players):
+        self.number_of_players = len(players)
+        self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
+
+        self.players = players
+
+        self.players[0].add_card(0, CardType.BLUE, self.subscribe)
+        self.players[0].add_card(1, CardType.BLUE, self.subscribe)
+        self.players[0].add_card(2, CardType.BLUE, self.subscribe)
+        self.players[0].add_card(3, CardType.BLUE, self.subscribe)
+        self.players[0].add_card(4, CardType.BLUE, self.subscribe)
+
+        self.players[0].add_card(0, CardType.GREEN, self.subscribe)
+        self.players[0].add_card(1, CardType.GREEN, self.subscribe)
+
+        self.players[0].add_card(3, CardType.GREEN, self.subscribe)
+        self.players[0].add_card(4, CardType.GREEN, self.subscribe)
+
+        self.players[0].add_card(1, CardType.RED, self.subscribe)
+        self.players[0].add_card(0, CardType.RED, self.subscribe)
+
+        self.players[0].add_card(0, CardType.PURPLE, self.subscribe)
+        self.players[0].add_card(1, CardType.PURPLE, self.subscribe)
+        self.players[0].add_card(2, CardType.PURPLE, self.subscribe)
+
+        self.players[0].add_card(0, CardType.WIN, self.subscribe)
+        self.players[0].add_card(1, CardType.WIN, self.subscribe)
+        self.players[0].add_card(2, CardType.WIN, self.subscribe)
+        self.players[0].add_card(3, CardType.WIN, self.subscribe)
+
+
+        self.players[1].add_card(0, CardType.BLUE, self.subscribe)
+
+        self.players[1].add_card(2, CardType.BLUE, self.subscribe)
+        self.players[1].add_card(3, CardType.BLUE, self.subscribe)
+        self.players[1].add_card(4, CardType.BLUE, self.subscribe)
+
+        self.players[1].add_card(0, CardType.GREEN, self.subscribe)
+        self.players[1].add_card(1, CardType.GREEN, self.subscribe)
+        self.players[1].add_card(2, CardType.GREEN, self.subscribe)
+        self.players[1].add_card(3, CardType.GREEN, self.subscribe)
+        self.players[1].add_card(4, CardType.GREEN, self.subscribe)
+
+        self.players[1].add_card(1, CardType.RED, self.subscribe)
+        self.players[1].add_card(0, CardType.RED, self.subscribe)
+
+        self.players[1].add_card(0, CardType.PURPLE, self.subscribe)
+        self.players[1].add_card(1, CardType.PURPLE, self.subscribe)
+        self.players[1].add_card(2, CardType.PURPLE, self.subscribe)
+
+        self.players[1].add_card(0, CardType.WIN, self.subscribe)
+        self.players[1].add_card(1, CardType.WIN, self.subscribe)
+        self.players[1].add_card(2, CardType.WIN, self.subscribe)
+        self.players[1].add_card(3, CardType.WIN, self.subscribe)
+
+        self.current_stage = 0
+        self.continuation = Continuation()
 
         self.stages = [ActivePlayerSetter(self.players),
                        DiceThrowing(),
@@ -62,24 +126,17 @@ class MainPipline():
                     if card_id:
                         del player_cards[card.id]
 
-    def not_continue(self, new_gobjects):
-        self.access_to_continue = False
-
-    def set_dice(self, dice):
-        self.dice = dice
-
-    def update_continuation(self):
-        self.access_to_continue = True
-
     def update(self):
         if self.stages[self.current_stage].is_ended():
             self.current_stage += 1
             self.current_stage %= len(self.stages)
-        if self.current_stage == 0:
-            for stage in self.stages:
-                stage.reset()
+        # if self.current_stage == 0:
+        #     print('reset')
+        #     for stage in self.stages:
+        #         stage.reset()
+                
 
     def run(self):
-        if self.access_to_continue:
+        if self.continuation.get:
             self.stages[self.current_stage].run()
         return []

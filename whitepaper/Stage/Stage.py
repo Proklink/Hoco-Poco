@@ -37,10 +37,16 @@ class DiceThrowing(Stage):
 
     def reset(self):
         self.ended = False
-        self.stages = [check_railway(), generate_dice(), check_radio_tower()]
+        # self.stages = [check_railway(), generate_dice(), check_radio_tower()]#проблема бага здесь
 
     def is_ended(self):
-        return self.ended
+        #Это нужно, чтобы когда Этап завершит свою работу он вернул True, но
+        #сразу стал готов для следующего запуска 
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            return True
     
 
 class RedCards(Stage):
@@ -54,9 +60,15 @@ class RedCards(Stage):
         self.ended = True
 
     def is_ended(self):
-        return self.ended
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            self.current = 0
+            return True
 
     def run(self):
+        print('red run ', self.current)
         self.stages[self.current].run()
 
         if self.current == 0:
@@ -80,7 +92,12 @@ class BlueCards(Stage):
         self.ended = True
 
     def is_ended(self):
-        return self.ended
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            self.current = 0
+            return True
     
     def stages_blue(self, stages):
         self.stages = [self.preparing]
@@ -108,7 +125,12 @@ class GreenCards(Stage):
         self.ended = True
 
     def is_ended(self):
-        return self.ended
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            self.current = 0
+            return True
 
     def run(self):
         self.stages[self.current].run()
@@ -120,28 +142,33 @@ class GreenCards(Stage):
 class PurpleCards(Stage):
     def __init__(self, players, listeners):
         self.ended = False
-        set_handler("purple_end", self.blue_end)
-        set_handler("stages_purple", self.stages_purple)
+        set_handler("purple_end", self.purple_end)
+        set_handler("purple_continue", self.purple_continue)
         self.preparing = prepare_and_check_purple(listeners, players)
-        self.stages = [self.preparing]
+        self.stages = [prepare_and_check_purple(listeners, players),
+                       stadium(listeners, players),
+                       telecenter(listeners, players)]
         self.current = 0
 
-    def blue_end(self):
+    def purple_end(self):
         self.ended = True
 
+    def purple_continue(self):
+        self.current += 1
+        self.current %= len(self.stages)
+        if self.current == 0:
+            self.ended = True
+
     def is_ended(self):
-        return self.ended
-    
-    def stages_purple(self, stages):
-        self.stages = [self.preparing]
-        for stage in stages:
-            self.stages.append(stage)
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            self.current = 0
+            return True
 
     def run(self):
         self.stages[self.current].run()
-
-        self.current += 1
-        self.current %= len(self.stages)
 
     def reset(self):
         self.ended = False

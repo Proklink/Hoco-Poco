@@ -19,8 +19,8 @@ class WinCard:
         self.gui_settings = settings
 
 class Card(WinCard):
-    def __init__(self, id: int, dice: list, name: str, profit: int, cost: int, depends = []):
-        super(Card, self).__init__(id=id, descr="", name=name, cost=cost, depends=depends)
+    def __init__(self, id: int, dice: list, name: str, profit: int, cost: int, depends = [], descr=""):
+        super(Card, self).__init__(id=id, descr=descr, name=name, cost=cost, depends=depends)
         self.dice = dice
         self.profit = profit
 
@@ -30,35 +30,40 @@ blue_cards = {
         dice = [1],
         name = 'Пшеничное поле',
         profit = 1,
-        cost = 1
+        cost = 1,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     1: Card(
         id = 1,
         dice = [2],
         name = 'Ферма',
         profit = 1,
-        cost = 1
+        cost = 1,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     2: Card(
         id = 2,
         dice = [5],
         name = 'Лес',
         profit = 1,
-        cost = 3
+        cost = 3,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     3: Card(
         id = 3,
         dice = [9],
         name = 'Шахта',
         profit = 5,
-        cost = 6
+        cost = 6,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     4: Card(
         id = 4,
         dice = [10],
         name = 'Яблоневый сад',
         profit = 3,
-        cost = 3
+        cost = 3,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
 }
 green_cards = {
@@ -67,7 +72,8 @@ green_cards = {
         dice = [2, 3],
         name = 'Пекарня',
         profit = 1,
-        cost = 1
+        cost = 1,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     1: Card(
         id = 1,
@@ -75,6 +81,7 @@ green_cards = {
         name = 'Магазин',
         profit = 3,
         cost = 2,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     2: Card(
         id = 2,
@@ -82,7 +89,8 @@ green_cards = {
         name = 'Сыроварня',
         depends = [1],
         profit = 3,
-        cost = 5
+        cost = 5,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     3: Card(
         id = 3,
@@ -90,7 +98,8 @@ green_cards = {
         name = 'Мебельная фабрика',
         depends = [2, 3],
         profit = 3,
-        cost = 3
+        cost = 3,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     4: Card(
         id = 4,
@@ -98,7 +107,8 @@ green_cards = {
         name = 'Фруктовый рынок',
         depends = [0, 4],
         profit = 3,
-        cost = 3
+        cost = 3,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
 }
 red_cards = {
@@ -107,14 +117,16 @@ red_cards = {
         dice = [3],
         name = 'Кафе',
         profit = 1,
-        cost = 2
+        cost = 2,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     1: Card(
         id = 1,
         dice = [9, 10],
         name = 'Ресторан',
         profit = 2,
-        cost = 3
+        cost = 3,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
 }
 purple_cards = {
@@ -123,21 +135,24 @@ purple_cards = {
         dice = [6],
         name = 'Стадион',
         profit = 2,
-        cost = 6
+        cost = 6,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     1: Card(
         id = 1,
         dice = [6],
         name = 'Деловой центр',
         profit = 0, #обмен картами
-        cost = 8
+        cost = 8,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
     2: Card(
         id = 2,
         dice = [6],
         name = 'Телецентр',
         profit = 5,
-        cost = 7
+        cost = 7,
+        descr = 'Можете бросать два кубика вместо одного',
     ),
 }
 win_cards = {

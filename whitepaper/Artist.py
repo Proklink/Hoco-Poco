@@ -1,15 +1,50 @@
 import pygame
 from Graphics.settings import *
 from Graphics.GInfo import *
+from Graphics.Person import *
 from InternalEvents import dispatch_event, set_handler
 
+#players_coordinates
+plrs_crds = {
+    0 : {
+        'left' : 15,
+        'right' : 480,
+        'top' : 26,
+        'bottom' : 526
+    },
+    1 : {
+        'left' : 484,
+        'right' : 949,
+        'top' : 26,
+        'bottom' : 526
+    },
+    2 : {
+        'left' : 953,
+        'right' : 1418,
+        'top' : 26,
+        'bottom' : 526
+    }
+}
+
+#big_board_coordinates
+bbrd_crds = {
+    'left' : 252,
+    'right' : 1227,
+    'top' : 540,
+    'bottom' : 1040
+}
+
 class Artist():
-    def __init__(self, screen, settings):
+    def __init__(self, screen, settings, players):
+        self.players = players
         self.settings = settings
         self.window = screen
         self.clear_color = (0, 0, 0)
-        self.graphic_objects = []
+        self.graphic_objects = [GObject()]
         self.dialog_objects = []
+
+        self.last_clicked_player = -1
+        self.last_clicked_card = ()
 
         set_handler("new_grafics", self.new_grafics)
         set_handler("new_dialog", self.new_dialog)
@@ -20,6 +55,14 @@ class Artist():
 
         self.active_player_static_notification = get_active_player_gobj('')
         self.current_dice_static_notification = get_current_dice_gobj('')
+
+        self.graphic_objects.append(players[0].mini_board)
+        self.graphic_objects.append(players[1].mini_board)
+        self.graphic_objects.append(BigCard())
+        self.graphic_objects.append(ActionInfo())
+
+    def card_clicked(self, color, card_id):
+        self.last_clicked_card = (color, card_id)
 
     def new_dice(self, dice):
         dice_str = ''
@@ -32,22 +75,47 @@ class Artist():
     def new_active_player(self, player):
         self.active_player_static_notification = get_active_player_gobj('Ход игрока {}'.format(player.name))
 
+    def standart_click(self, m_x, m_y):
+        for dialogs in self.dialog_objects:
+            for button in dialogs:
+                if button.rect.collidepoint(m_x, m_y):
+                    button.click()
+
+        for i in range(len(self.players)):
+            if m_x >= plrs_crds[i]['left']  and \
+               m_x <= plrs_crds[i]['right'] and \
+               m_y >= plrs_crds[i]['top']   and \
+               m_y <= plrs_crds[i]['bottom']:
+                self.graphic_objects[0] = self.players[i].big_card_board
+                self.last_clicked_player = i
+                dispatch_event('player_clicked', i)
+        
+        if m_x >= bbrd_crds['left']  and \
+           m_x <= bbrd_crds['right'] and \
+           m_y >= bbrd_crds['top']   and \
+           m_y <= bbrd_crds['bottom']:
+            self.graphic_objects[0].click(m_x, m_y)
+    
     def click(self, m_x, m_y):
-        for button in self.dialog_objects:
-            if button.rect.collidepoint(m_x, m_y):
-                button.click()
+        print(m_x, " ", m_y)
+        self.standart_click(m_x, m_y)
+    
+    def clear_dialogs(self):
+        for dialogs in self.dialog_objects:
+            for dialog_gobject in dialogs:
+                self.graphic_objects.remove(dialog_gobject)
+            dispatch_event('update_continuation')
+        self.dialog_objects = []
 
     def dialog_answer(self, next_event, answer):
         dispatch_event(next_event, answer)
         
-        for dialog_gobject in self.dialog_objects:
-            self.graphic_objects.remove(dialog_gobject)
-        self.dialog_objects = []
-        dispatch_event('update_continuation')
+        self.clear_dialogs()
 
     def new_dialog(self, new_gobjects):
+        self.clear_dialogs()
+        self.dialog_objects.append(new_gobjects)
         for gobject in new_gobjects:
-            self.dialog_objects.append(gobject)
             self.graphic_objects.append(gobject)
 
     def new_grafics(self, new_gobjects):
@@ -69,8 +137,6 @@ class Artist():
     def draw(self):
         self.window.screen.fill(self.clear_color)
         self.window.screen.blit(self.window.image, self.window.rect)
-        self.active_player_static_notification.blitme(self.window)
-        self.current_dice_static_notification.blitme(self.window)
 
         for gobject in self.graphic_objects:
             gobject.blitme(self.window)
