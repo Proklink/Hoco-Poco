@@ -29,10 +29,17 @@ class ActivePlayerSetter(Substage):
         self.number_of_players = len(players)
         self.players = players
         self.ended = False
+        set_handler('turn', self.turn)
+        self.one_more_turn = False
+
+    def turn(self):
+        self.one_more_turn = True
         
     def run(self):
-        self.active_player_id += 1
-        self.active_player_id %= self.number_of_players
+        if not self.one_more_turn:
+            self.active_player_id += 1
+            self.active_player_id %= self.number_of_players
+            self.one_more_turn = False
         dispatch_event('new_grafics', [ (NotificationExpired, ['Ход игрока {}'.format(self.players[self.active_player_id].name), 1, [], "update_continuation"])])
         dispatch_event('active_player', self.players[self.active_player_id])
         self.ended = True

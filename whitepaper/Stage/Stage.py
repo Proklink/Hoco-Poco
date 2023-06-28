@@ -202,3 +202,60 @@ class ShopStage(Stage):
     def reset(self):
         self.ended = False
         self.current = 0
+
+class VictoryCheck(Stage):
+    def __init__(self, players, listeners):
+        self.ended = False
+        set_handler("active_player", self.new_active_player)
+
+    def new_active_player(self, active_player):
+        self.active_player = active_player
+
+    def is_ended(self):
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            return True
+
+    def run(self):
+        if len(self.active_player.cards[CardType.WIN.value]) == 4:
+            res_str = 'Игрок {} выиграл!'.format(self.active_player.name)
+            print(res_str)
+            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "game_over"]) ])
+        self.ended = True
+
+    def reset(self):
+        self.ended = False
+
+class HappinessCheck(Stage):
+    def __init__(self, players, listeners):
+        self.ended = False
+        set_handler("active_player", self.new_active_player)
+        set_handler('dice', self.new_dice)
+
+    def new_dice(self, dice):
+        self.dice = dice
+
+    def new_active_player(self, active_player):
+        self.active_player = active_player
+
+    def is_ended(self):
+        if self.ended == False:
+            return self.ended
+        else:
+            self.ended = False
+            return True
+
+    def run(self):
+        if len(self.dice) > 1 and self.dice[1] == self.dice[2] and \
+           self.active_player.cards[CardType.WIN.value].get(crds.win_cards[2].id) != None:
+            
+            res_str = 'Игрок {} ходит ещё раз'.format(self.active_player.name)
+            print(res_str)
+            dispatch_event('new_grafics', [ (NotificationExpired, [res_str, 1, [], "update_continuation"]) ])
+            dispatch_event('turn')
+        self.ended = True
+
+    def reset(self):
+        self.ended = False

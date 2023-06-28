@@ -95,7 +95,9 @@ class MainPipline():
                        BlueCards(self.players, self.listeners),
                        GreenCards(self.players, self.listeners),
                        PurpleCards(self.players, self.listeners),
-                       ShopStage(self.players, self.listeners)]
+                       ShopStage(self.players, self.listeners),
+                       VictoryCheck(self.players, self.listeners),
+                       HappinessCheck(self.players, self.listeners)]
         
     def card_buy(self, player_id, color, card_id):
         self.players[player_id].add_card(card_id, CardType(color), self.subscribe)
