@@ -11,6 +11,8 @@ from Graphics.settings import SPACE_BEETWEN_CARDS as INDENT
 class GObject:
     def __init__(self):
         self.FONT = font.SysFont(None, 30)
+        self.is_border = False
+        self.border_color = pygame.Color('blue')
     def expired(self):
         return False, []
     
@@ -22,6 +24,9 @@ class GObject:
 
     def clickable(self):
         return False
+    
+    def hover(self, x ,y):
+        pass
     
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
     words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
@@ -109,6 +114,26 @@ class Notification(GObject):
         screen.screen.blit(self.image, self.rect)
         pass
 
+class FPS(GObject):
+    WIDTH = 50
+    HEIGHT = 20
+    def __init__(self, clock):
+        super().__init__()
+        self.image = Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.left = INDENT
+        self.rect.bottom = SCREEN_HEIGHT - INDENT
+        self.clock = clock
+
+        blit_text(self.image, str(int(self.clock.get_fps())), (0,0), self.FONT, pygame.Color('green'))
+    
+    def update(self):
+        self.image.fill((0,0,0, 0))
+        blit_text(self.image, str(int(self.clock.get_fps())), (0,0), self.FONT, pygame.Color('green'))
+
+    def blitme(self, screen):
+        screen.screen.blit(self.image, self.rect)
+
 class Button(GObject):
     WIDTH = 188
     HEIGHT = 75
@@ -126,11 +151,20 @@ class Button(GObject):
         self.text_image_rect.top = self.rect.height / 2 - self.text_image_rect.height / 2
         self.image.blit(self.text_image, self.text_image_rect)
 
+        self.border = Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        pygame.draw.rect(self.border, self.border_color, self.rect, width=1)
+
     def blitme(self, screen):
         screen.screen.blit(self.image, self.rect)
+        if self.is_border:
+            screen.screen.blit(self.border, self.rect)
+
 
     def click(self):
         print('{} button clicked'.format(self.text))
+
+    def clickable(self):
+        return True
 
 def get_dialog(text):
     notification_surface = Notification([text, [], ''])

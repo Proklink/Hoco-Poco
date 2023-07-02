@@ -41,37 +41,68 @@ class CardBoard(GObject):
     WIDTH = 975
     HEIGHT = 500
     def __init__(self):
+        super().__init__()
         self.board = Surface((self.WIDTH, self.HEIGHT))
         self.rect = self.board.get_rect()
         self.rect.left = 252#x
         self.rect.top = 540#y
         self.cards = [{},{},{},{},{}]
 
+        # self.card_border = Surface((CARD_WIDTH, CARD_HEIGHT), pygame.SRCALPHA)
+        self.card_border_rect = Rect(0, 0, CARD_WIDTH, CARD_HEIGHT)
+        # pygame.draw.rect(self.card_border, self.border_color, self.card_border_rect, width=5)
+
+    def get_multyplyer(self, number, card_rect):
+        surface = Surface((16, 16), pygame.SRCALPHA)
+        rect = surface.get_rect()
+        rect.right = card_rect.right
+        rect.top = card_rect.top
+        blit_text(surface, str(number), (0,0), self.FONT)
+        return surface, rect
 
     def added(self, card_id, color: CardType, number):
-        image = cards_by_colors[color.value][card_id].gui_settings.image.copy()
-        rect = image.get_rect()
-        rect.left = self.coordinates[color][card_id][0]
-        rect.top = self.coordinates[color][card_id][1]
-        self.cards[color.value][card_id] = (image, rect)
+        if self.cards[color.value].get(card_id) != None:
+            mtuple = self.cards[color.value][card_id]
+            num = mtuple[2] + 1
+            self.cards[color.value][card_id] = (mtuple[0], mtuple[1], num)
+        else:
+            image = cards_by_colors[color.value][card_id].gui_settings.image.copy()
+            rect = image.get_rect().copy()
+            rect.left = self.coordinates[color][card_id][0]
+            rect.top = self.coordinates[color][card_id][1]
+            self.cards[color.value][card_id] = (image, rect, number)
         self.update()
             
 
     def deleted(self, card_id, color: CardType, number):
         if number == None:
             self.cards[color.value][card_id] = ()
-            self.update()
+        else:
+            m_tuple = self.cards[color.value][card_id]
+            num = m_tuple[2] - 1
+            self.cards[color.value][card_id] = (m_tuple[0], m_tuple[1], num)
+            
+        self.update()
             
 
     def update(self):
         self.board.fill(0xD9D9D9)
         for color in CardType:
             for card_id in self.cards[color.value]:
-                if self.cards[color.value][card_id] != ():
-                    self.board.blit(self.cards[color.value][card_id][0], self.cards[color.value][card_id][1])
+                if self.cards[color.value][card_id] != () and self.cards[color.value][card_id][2] > 0:
+                    image = self.cards[color.value][card_id][0]
+                    rect = self.cards[color.value][card_id][1]
+                    number = self.cards[color.value][card_id][2]
+                    number_surface, number_rect = self.get_multyplyer(number, rect)
+                    self.board.blit(image, rect)
+                    self.board.blit(number_surface, number_rect)
     
     def blitme(self, screen):
         screen.screen.blit(self.board, self.rect)
+        if self.is_border:
+            # screen.screen.blit(self.card_border, self.card_border_rect)
+            pygame.draw.rect(screen.screen, self.border_color, self.card_border_rect, width=5)
+        
 
     def click(self, x, y):
         x -= self.rect.left
@@ -83,6 +114,21 @@ class CardBoard(GObject):
 
                 if self.cards[color.value][card_id][1].collidepoint(x, y):
                     dispatch_event('card', color, card_id)
+
+    def hover(self, x, y):
+        for color in CardType:
+            for card_id in self.cards[color.value]:
+                if self.cards[color.value][card_id] == ():
+                    continue
+                card_rect = self.cards[color.value][card_id][1]
+
+                if card_rect.collidepoint(x - self.rect.left, y - self.rect.top):
+                    self.card_border_rect.left = card_rect.left + self.rect.left
+                    self.card_border_rect.top = card_rect.top + self.rect.top
+                    self.is_border = True
+                    return
+                else:
+                    self.is_border = False
 
 
 class MiniCardBoard(GObject):
@@ -126,34 +172,99 @@ class MiniCardBoard(GObject):
         2 : (15 + 2*WIDTH + 2*IND, 26)
     }
 
-    def __init__(self, id):
+    def __init__(self, id, name):
+        super().__init__()
+        self.cards = [{}, {}, {}, {}, {}]
         self.board = Surface((self.WIDTH, self.HEIGHT))
         self.rect = self.board.get_rect()
+        self.player_id = id
+        self.active_player_id = -1
+        set_handler('active_player', self.new_active_player)
+
+        self.border = Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA)
+        pygame.draw.rect(self.border, self.border_color, self.rect, width=2)
+
         self.rect.left = self.playres_boards[id][0]
         self.rect.top = self.playres_boards[id][1]
-        self.cards = [[], [], [], [], []]
+
+        self.money_surface = Surface((CARD_MINI_WIDTH, CARD_MINI_HEIGHT))
+        self.money_rect = self.money_surface.get_rect()
+        self.money_rect.right = self.WIDTH - INDENT
+        self.money_rect.bottom = self.HEIGHT - INDENT
+
+        self.player_name_surface = Surface((CARD_MINI_WIDTH*2, 20))
+        self.player_name_surface.fill(0xD9D9D9)
+        self.player_name_rect = self.player_name_surface.get_rect()
+        self.player_name_rect.right = self.WIDTH - INDENT
+        self.player_name_rect.top = INDENT
+        blit_text(self.player_name_surface, str(name), (0,0), self.FONT, pygame.Color('red'))
+        self.player_name_border = Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA)
+        pygame.draw.rect(self.player_name_border, self.border_color, self.player_name_rect, width=1)
+
+    def new_active_player(self, active_player):
+        self.active_player_id = active_player.id
 
     def added(self, card_id, color: CardType, number):
-        print('mini ', number)
-        self.cards[color.value].append(card_id)
+        if self.cards[color.value].get(card_id) != None:
+            mtuple = self.cards[color.value][card_id]
+            num = mtuple[2] + 1
+            self.cards[color.value][card_id] = (mtuple[0], mtuple[1], num)
+        else:
+            image = cards_by_colors[color.value][card_id].gui_settings.image_mini.copy()
+            rect = image.get_rect().copy()
+            rect.left = self.coordinates[color][card_id][0]
+            rect.top = self.coordinates[color][card_id][1]
+            self.cards[color.value][card_id] = (image, rect, number)
         self.update()
 
     def deleted(self, card_id, color: CardType, number):
-        del self.cards[color.value][card_id]
+        if number == None:
+            self.cards[color.value][card_id] = ()
+        else:
+            m_tuple = self.cards[color.value][card_id]
+            num = m_tuple[2] - 1
+            self.cards[color.value][card_id] = (m_tuple[0], m_tuple[1], num)
+            
         self.update()
+
+    def money(self, money):
+        self.money_surface.fill(0xD9D9D9)
+        blit_text(self.money_surface, str(money), (0,0), self.FONT)
+        self.board.blit(self.money_surface, self.money_rect)
+
+    def get_multyplyer(self, number, card_rect):
+        surface = Surface((16, 16), pygame.SRCALPHA)
+        rect = surface.get_rect()
+        rect.right = card_rect.right
+        rect.top = card_rect.top
+        blit_text(surface, str(number), (0,0), self.FONT)
+        return surface, rect
 
     def update(self):
         self.board.fill(0xD9D9D9)
         for color in CardType:
             for card_id in self.cards[color.value]:
-                image = cards_by_colors[color.value][card_id].gui_settings.image_mini.copy()
-                self.board.blit(image, (self.coordinates[color][card_id][0], self.coordinates[color][card_id][1]))
+                if self.cards[color.value][card_id] != () and self.cards[color.value][card_id][2] > 0:
+                    image = self.cards[color.value][card_id][0]
+                    rect = self.cards[color.value][card_id][1]
+                    number = self.cards[color.value][card_id][2]
+                    number_surface, number_rect = self.get_multyplyer(number, rect)
+                    self.board.blit(image, rect)
+                    self.board.blit(number_surface, number_rect)
+        self.board.blit(self.player_name_surface, self.player_name_rect)
 
     def blitme(self, screen):
         screen.screen.blit(self.board, self.rect)
+        if self.is_border:
+            screen.screen.blit(self.border, self.rect)
+        if self.player_id == self.active_player_id:
+            screen.screen.blit(self.player_name_border, self.rect)
 
     def click(self):
         pass
+
+    def clickable(self):
+        return True
 
 
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
@@ -177,6 +288,7 @@ class BigCard(GObject):
     WIDTH = 300
     HEIGHT = 500
     def __init__(self):
+        super().__init__()
         set_handler('card', self.update)
         self.board = Surface((self.WIDTH, self.HEIGHT))
         self.rect = self.board.get_rect()
@@ -223,8 +335,29 @@ class BigCard(GObject):
 
 class Shop:
     def __init__(self):
+        self.cards = [{}, {}, {}, {}, {}]
         self.big_card_board = CardBoard()
 
         for color in CardType:
             for card_id, card in list(crds.cards_by_colors[color.value].items()):
-                self.big_card_board.added(card_id, color, 6)
+                self.add_card(card_id, color, 6)
+
+    def add_card(self, card_id, color: CardType, number):
+        colored_cards = self.cards[color.value]
+        # number = colored_cards.get(card_id)
+        colored_cards[card_id] = 6
+        self.big_card_board.added(card_id, color, colored_cards[card_id])
+
+    #не доедлал удаление карты
+    def del_card(self, card_id, color: CardType):
+        colored_cards = self.cards[color.value]
+        number = colored_cards.get(card_id)
+        if number != None:
+            if colored_cards[card_id] > 1:
+                colored_cards[card_id] -= 1
+
+                self.big_card_board.deleted(card_id, color, colored_cards[card_id])
+            else:
+                del colored_cards[card_id]
+                
+                self.big_card_board.deleted(card_id, color, None)

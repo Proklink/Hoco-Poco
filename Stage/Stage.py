@@ -68,7 +68,6 @@ class RedCards(Stage):
             return True
 
     def run(self):
-        print('red run ', self.current)
         self.stages[self.current].run()
 
         if self.current == 0:
@@ -103,6 +102,7 @@ class BlueCards(Stage):
         self.stages = [self.preparing]
         for stage in stages:
             self.stages.append(stage)
+        
 
     def run(self):
         self.stages[self.current].run()
@@ -175,10 +175,11 @@ class PurpleCards(Stage):
         self.current = 0
 
 class ShopStage(Stage):
-    def __init__(self, players, listeners):
+    def __init__(self, players, listeners, mshop):
         self.ended = False
+        self.shop = mshop
         set_handler("shop_end", self.shop_end)
-        self.stages = [shop(listeners, players)]
+        self.stages = [shop(listeners, players, self.shop)]
         self.current = 0
 
     def shop_end(self):

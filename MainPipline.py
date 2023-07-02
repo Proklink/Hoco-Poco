@@ -1,6 +1,5 @@
 from Stage.Stage import *
 from Stage.Substage import *
-
 import random, time
 from InternalEvents import set_handler
 
@@ -29,10 +28,10 @@ class Continuation:
         return self.access_to_continue 
 
 class MainPipline():
-    def __init__(self, players):
+    def __init__(self, players, shop):
         self.number_of_players = len(players)
         self.listeners = [{}, {}, {}, {}] #listeners: [{dice number: {player id: {card id : number of cards}}}]
-
+        self.shop = shop
         self.players = players
 
         self.players[0].add_card(0, CardType.BLUE, self.subscribe)
@@ -84,6 +83,9 @@ class MainPipline():
         # self.players[1].add_card(2, CardType.WIN, self.subscribe)
         # self.players[1].add_card(3, CardType.WIN, self.subscribe)
 
+        self.players[0].add_money(3)
+        self.players[1].add_money(3)
+
         set_handler('card_buy', self.card_buy)
 
         self.current_stage = 0
@@ -95,7 +97,7 @@ class MainPipline():
                        BlueCards(self.players, self.listeners),
                        GreenCards(self.players, self.listeners),
                        PurpleCards(self.players, self.listeners),
-                       ShopStage(self.players, self.listeners),
+                       ShopStage(self.players, self.listeners, self.shop),
                        VictoryCheck(self.players, self.listeners),
                        HappinessCheck(self.players, self.listeners)]
         

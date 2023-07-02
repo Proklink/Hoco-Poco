@@ -35,14 +35,16 @@ bbrd_crds = {
 }
 
 class Artist():
-    def __init__(self, screen, settings, players):
+    def __init__(self, screen, settings, players, clock, shop):
         self.players = players
         self.settings = settings
         self.window = screen
+        self.clock = clock
+        self.fps = FPS(self.clock)
         self.clear_color = (0, 0, 0)
-        self.graphic_objects = [GObject()]
+        self.graphic_objects = [GObject(), self.fps]
         self.dialog_objects = []
-
+        
         self.last_clicked_player = -1
         self.last_clicked_card = ()
 
@@ -55,7 +57,7 @@ class Artist():
         set_handler('shop', self.display_shop)
 
         self.shop_button = get_shop_button()
-        self.shop = Shop()
+        self.shop = shop
 
         self.graphic_objects.append(players[0].mini_board)
         self.graphic_objects.append(players[1].mini_board)
@@ -142,6 +144,17 @@ class Artist():
 
         for new_gobj in new_gobjects:
             self.graphic_objects.append(new_gobj[0](new_gobj[1]))
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        for gbj in self.graphic_objects:
+            if gbj.clickable():
+                if gbj.rect.collidepoint(mouse_x, mouse_y):
+                    gbj.is_border = True
+                else:
+                    gbj.is_border = False
+        self.graphic_objects[0].hover(mouse_x, mouse_y)
+
+        self.fps.update()
 
     def draw(self):
         self.window.screen.fill(self.clear_color)
