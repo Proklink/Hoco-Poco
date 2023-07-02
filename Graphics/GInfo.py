@@ -49,8 +49,10 @@ class NotificationExpired(GObject):
     '''
     args [text, expiration_time = 20000, generates = [], event = ""]
     '''
-    WIDTH = 366
-    HEIGHT = 300
+    WIDTH = NOTIFICATION_WIDTH
+    HEIGHT = NOTIFICATION_HEIGHT
+    TOP = BIG_CARD_TOP
+    RIGHT = SCREEN_WIDTH - INDENT
     def __init__(self, args: list):
         super().__init__()
         self.text = str(args[0])
@@ -61,8 +63,8 @@ class NotificationExpired(GObject):
         self.image = Surface((self.WIDTH, self.HEIGHT))
         self.image.fill(pygame.Color('grey'))
         self.rect = self.image.get_rect()
-        self.rect.left = 1550
-        self.rect.top = 540
+        self.rect.right = self.RIGHT
+        self.rect.top = self.TOP
 
         self.text_surface = Surface((self.WIDTH - 2*INDENT, self.HEIGHT - 2*INDENT))
         self.text_surface.fill(pygame.Color('grey'))
@@ -89,8 +91,10 @@ class Notification(GObject):
     '''
     args [text, generates = [], event = ""]
     '''
-    WIDTH = 366
-    HEIGHT = 300
+    WIDTH = NOTIFICATION_WIDTH
+    HEIGHT = NOTIFICATION_HEIGHT
+    TOP = BIG_CARD_TOP
+    RIGHT = SCREEN_WIDTH - INDENT
     def __init__(self, args: list):
         super().__init__()
         self.text = str(args[0])
@@ -100,8 +104,8 @@ class Notification(GObject):
         self.image = Surface((self.WIDTH, self.HEIGHT))
         self.image.fill(pygame.Color('grey'))
         self.rect = self.image.get_rect()
-        self.rect.left = 1550
-        self.rect.top = 540
+        self.rect.right = self.RIGHT
+        self.rect.top = self.TOP
 
         self.text_surface = Surface((self.WIDTH - 2*INDENT, self.HEIGHT - 2*INDENT))
         self.text_surface.fill(pygame.Color('grey'))
@@ -135,14 +139,13 @@ class FPS(GObject):
         screen.screen.blit(self.image, self.rect)
 
 class Button(GObject):
-    WIDTH = 188
-    HEIGHT = 75
+    WIDTH = BUTTON_WIDTH
+    HEIGHT = BUTTON_HEIGHT
     def __init__(self, text):
         super().__init__()
         self.text = text
 
         self.image = Surface((self.WIDTH, self.HEIGHT))
-        # self.image.fill((0 ,255, 0))
         self.rect = self.image.get_rect()
 
         self.text_image = self.FONT.render(text, True, TEXT_COLOR, (0,0,0))
@@ -248,7 +251,7 @@ def get_current_dice_gobj(text):
 def get_shop_button():
     button = Button('Магазин')
     button.rect.right = SCREEN_WIDTH - INDENT
-    button.rect.top = INDENT
+    button.rect.top = PLAYER_CARD_BOARD_TOP
 
     button.click = lambda: dispatch_event("shop")
     return button

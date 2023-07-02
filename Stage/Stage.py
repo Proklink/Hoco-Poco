@@ -37,7 +37,6 @@ class DiceThrowing(Stage):
 
     def reset(self):
         self.ended = False
-        # self.stages = [check_railway(), generate_dice(), check_radio_tower()]#проблема бага здесь
 
     def is_ended(self):
         #Это нужно, чтобы когда Этап завершит свою работу он вернул True, но
@@ -196,9 +195,6 @@ class ShopStage(Stage):
     def run(self):
         dispatch_event('shop_in_game')
         self.stages[self.current].run()
-
-        # self.current += 1
-        # self.current %= len(self.stages)
 
     def reset(self):
         self.ended = False

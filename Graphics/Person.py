@@ -5,6 +5,56 @@ from Graphics.settings import SPACE_BEETWEN_CARDS as IND
 from InternalEvents import dispatch_event, set_handler
 from Graphics.GInfo import *
 
+
+class BigCard(GObject):
+    WIDTH = BIG_CARD_WIDTH
+    HEIGHT = BIG_CARD_HEIGHT
+    RIGHT = SCREEN_WIDTH - 2*IND - NOTIFICATION_WIDTH
+    TOP = BIG_CARD_TOP
+    def __init__(self):
+        super().__init__()
+        set_handler('card', self.update)
+        self.board = Surface((self.WIDTH, self.HEIGHT), pygame.SRCALPHA)
+        self.rect = self.board.get_rect()
+        self.rect.right = self.RIGHT
+        self.rect.top = self.TOP        
+
+    def update(self, color, card_id):
+        self.board.fill(pygame.Color('grey'))
+        card = cards_by_colors[color.value][card_id]
+        
+        header_str = card.name
+        if color.value != CardType.WIN.value:
+            dice_str = " {}".format(card.dice)
+            header_str += dice_str
+
+        header_text_image = self.FONT.render(header_str, True, TEXT_COLOR, pygame.Color('grey'))
+        header_text_rect = header_text_image.get_rect()
+        header_text_rect.left = 22
+        header_text_rect.top = 4
+        
+        card_image = cards_by_colors[color.value][card_id].gui_settings.image_big.copy()
+        card_rect = card_image.get_rect()
+        card_rect.left = 22
+        card_rect.top = 4 + header_text_rect.bottom
+
+        main_text_surface = Surface((256, self.HEIGHT - card_rect.height - header_text_rect.height - 8))
+        main_text_surface.fill(pygame.Color('grey'))
+        main_text = "Стоит: {}\n{}".format(card.cost, card.descr)
+
+        blit_text(main_text_surface, main_text, (0,0), self.FONT)
+
+        self.board.blit(header_text_image, header_text_rect)
+        self.board.blit(card_image, card_rect)
+        self.board.blit(main_text_surface, (22, 4 + card_rect.bottom))
+
+    
+    def blitme(self, screen):
+        screen.screen.blit(self.board, self.rect)
+
+    def click(self, x, y):
+        pass
+
 class CardBoard(GObject):
     coordinates = {
         CardType.BLUE : [
@@ -38,19 +88,18 @@ class CardBoard(GObject):
         ]
     }
 
-    WIDTH = 975
-    HEIGHT = 500
+    WIDTH = CARD_BOARD_WIDTH
+    HEIGHT = CARD_BOARD_HEIGHT
+    RIGHT = BigCard.RIGHT - BIG_CARD_WIDTH - IND
     def __init__(self):
         super().__init__()
         self.board = Surface((self.WIDTH, self.HEIGHT))
         self.rect = self.board.get_rect()
-        self.rect.left = 252#x
-        self.rect.top = 540#y
+        self.rect.right = self.RIGHT                   #x
+        self.rect.bottom = SCREEN_HEIGHT - IND #y
         self.cards = [{},{},{},{},{}]
 
-        # self.card_border = Surface((CARD_WIDTH, CARD_HEIGHT), pygame.SRCALPHA)
         self.card_border_rect = Rect(0, 0, CARD_WIDTH, CARD_HEIGHT)
-        # pygame.draw.rect(self.card_border, self.border_color, self.card_border_rect, width=5)
 
     def get_multyplyer(self, number, card_rect):
         surface = Surface((16, 16), pygame.SRCALPHA)
@@ -100,7 +149,6 @@ class CardBoard(GObject):
     def blitme(self, screen):
         screen.screen.blit(self.board, self.rect)
         if self.is_border:
-            # screen.screen.blit(self.card_border, self.card_border_rect)
             pygame.draw.rect(screen.screen, self.border_color, self.card_border_rect, width=5)
         
 
@@ -129,7 +177,6 @@ class CardBoard(GObject):
                     return
                 else:
                     self.is_border = False
-
 
 class MiniCardBoard(GObject):
     coordinates = {
@@ -164,12 +211,13 @@ class MiniCardBoard(GObject):
         ]
     }
 
-    WIDTH = 465
-    HEIGHT = 500
+    WIDTH = PLAYER_CARD_BOARD_WIDTH
+    HEIGHT = PLAYER_CARD_BOARD_HEIGHT
+    TOP = PLAYER_CARD_BOARD_TOP
     playres_boards = {
-        0 : (15, 26),
-        1 : (15 + WIDTH + IND, 26),
-        2 : (15 + 2*WIDTH + 2*IND, 26)
+        0 : (IND,                   TOP),
+        1 : (IND + WIDTH + IND,     TOP),
+        2 : (IND + 2*WIDTH + 2*IND, TOP)
     }
 
     def __init__(self, id, name):
@@ -266,7 +314,6 @@ class MiniCardBoard(GObject):
     def clickable(self):
         return True
 
-
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
     words = [word.split(' ') for word in text.splitlines()]  # 2D array where each row is a list of words.
     space = font.size(' ')[0]  # The width of a space.
@@ -284,55 +331,6 @@ def blit_text(surface, text, pos, font, color=pygame.Color('black')):
         x = pos[0]  # Reset the x.
         y += word_height  # Start on new row.
 
-class BigCard(GObject):
-    WIDTH = 300
-    HEIGHT = 500
-    def __init__(self):
-        super().__init__()
-        set_handler('card', self.update)
-        self.board = Surface((self.WIDTH, self.HEIGHT))
-        self.rect = self.board.get_rect()
-        self.rect.left = 1240
-        self.rect.top = 540
-        self.FONT = font.SysFont(None, 30)
-        
-
-    def update(self, color, card_id):
-        self.board.fill(pygame.Color('grey'))
-        card = cards_by_colors[color.value][card_id]
-        
-        header_str = card.name
-        if color.value != CardType.WIN.value:
-            dice_str = " {}".format(card.dice)
-            header_str += dice_str
-
-        header_text_image = self.FONT.render(header_str, True, TEXT_COLOR, pygame.Color('grey'))
-        header_text_rect = header_text_image.get_rect()
-        header_text_rect.left = 22
-        header_text_rect.top = 4
-        
-        card_image = cards_by_colors[color.value][card_id].gui_settings.image_big.copy()
-        card_rect = card_image.get_rect()
-        card_rect.left = 22
-        card_rect.top = 4 + header_text_rect.bottom
-
-        main_text_surface = Surface((256, self.HEIGHT - card_rect.height - header_text_rect.height - 8))
-        main_text_surface.fill(pygame.Color('grey'))
-        main_text = "Стоит: {}\n{}".format(card.cost, card.descr)
-
-        blit_text(main_text_surface, main_text, (0,0), self.FONT)
-
-        self.board.blit(header_text_image, header_text_rect)
-        self.board.blit(card_image, card_rect)
-        self.board.blit(main_text_surface, (22, 4 + card_rect.bottom))
-
-    
-    def blitme(self, screen):
-        screen.screen.blit(self.board, self.rect)
-
-    def click(self, x, y):
-        pass
-
 class Shop:
     def __init__(self):
         self.cards = [{}, {}, {}, {}, {}]
@@ -341,14 +339,21 @@ class Shop:
         for color in CardType:
             for card_id, card in list(crds.cards_by_colors[color.value].items()):
                 self.add_card(card_id, color, 6)
+        self.is_active = False
+        set_handler('shop', self.shop_active)
+        set_handler("player_clicked", self.player_clicked)
+
+    def player_clicked(self, _):
+        self.is_active = False
+
+    def shop_active(self):
+        self.is_active = True
 
     def add_card(self, card_id, color: CardType, number):
         colored_cards = self.cards[color.value]
-        # number = colored_cards.get(card_id)
         colored_cards[card_id] = 6
         self.big_card_board.added(card_id, color, colored_cards[card_id])
 
-    #не доедлал удаление карты
     def del_card(self, card_id, color: CardType):
         colored_cards = self.cards[color.value]
         number = colored_cards.get(card_id)
@@ -361,3 +366,21 @@ class Shop:
                 del colored_cards[card_id]
                 
                 self.big_card_board.deleted(card_id, color, None)
+
+class MainInfoLine(GObject):
+    WIDTH = MAIN_INFO_LINE_WIDTH
+    HEIGHT = MAIN_INFO_LINE_HEIGHT
+    TOP = MAIN_INFO_LINE_TOP
+    LEFT = MAIN_INFO_LINE_LEFT
+    def __init__(self):
+        super().__init__()
+        self.board = Surface((self.WIDTH, self.HEIGHT))
+        self.rect = self.board.get_rect()
+        self.rect.left = self.LEFT
+        self.rect.top = self.TOP
+
+    def blitme(self, screen):
+        screen.screen.blit(self.board, self.rect)
+
+    def click(self, x, y):
+        pass

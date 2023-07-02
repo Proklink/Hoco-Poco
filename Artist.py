@@ -59,8 +59,10 @@ class Artist():
         self.shop_button = get_shop_button()
         self.shop = shop
 
+        self.graphic_objects.append(MainInfoLine())
         self.graphic_objects.append(players[0].mini_board)
         self.graphic_objects.append(players[1].mini_board)
+        # self.graphic_objects.append(players[2].mini_board)
         self.graphic_objects.append(BigCard())
         self.graphic_objects.append(self.shop_button)
 

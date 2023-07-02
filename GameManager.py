@@ -13,7 +13,7 @@ from Graphics.Person import Shop
 class Manager():
     def __init__(self):
         self.clock = pygame.time.Clock()
-        self.players = [Player("Player1"), Player("Player2")]
+        self.players = [Player("Player1"), Player("Player2"), Player("Player3")]
         self.settings = Settings()
         self.game_events = GameIvents()
         self.shop = Shop()

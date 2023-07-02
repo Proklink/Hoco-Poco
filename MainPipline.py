@@ -82,9 +82,13 @@ class MainPipline():
         # self.players[1].add_card(1, CardType.WIN, self.subscribe)
         # self.players[1].add_card(2, CardType.WIN, self.subscribe)
         # self.players[1].add_card(3, CardType.WIN, self.subscribe)
+        
+        # self.players[2].add_card(0, CardType.BLUE, self.subscribe)
+        # self.players[2].add_card(0, CardType.GREEN, self.subscribe)
 
         self.players[0].add_money(3)
         self.players[1].add_money(3)
+        # self.players[2].add_money(3)
 
         set_handler('card_buy', self.card_buy)
 
